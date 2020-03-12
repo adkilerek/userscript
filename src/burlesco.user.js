@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Burlesco
 // @namespace    https://burles.co/
-// @version      11.18
+// @version      11.19
 // @description  Leia notícias sem ser assinante, burle o paywall
 // @author       rodorgas & AugustoResende
 // @supportURL   https://burles.co
@@ -167,8 +167,22 @@ else if (/crusoe\.com\.br/.test(document.location.host)) {
 document.addEventListener('DOMContentLoaded', function() {
   var code = null;
 
-  if (/www\.economist\.com/.test(document.location.host))
-    code = 'document.cookie = "ec_limit=allow";';
+  if (/www\.economist\.com/.test(document.location.host)) {
+      code = 'document.cookie = "ec_limit=allow";';
+      code = `
+        var artBodyContainer = document.querySelector("article.article");
+        var artBody = artBodyContainer.innerHTML;
+        checkPaywall();
+        function checkPaywall () {
+            let paywallBox = document.querySelector(".layout-article-regwall");
+            if (paywallBox) {
+                artBodyContainer.innerHTML = artBody;
+            } else {
+                setTimeout(checkPaywall, 100);
+            }
+        };
+      `;
+    }
 
   else if (/ft\.com/.test(document.location.host)
       && document.querySelector('.barrier')) {
